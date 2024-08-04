@@ -73,7 +73,7 @@ There are two types of programs
 
 ### How to Write a Program?
 
-➡️ Generally, `Rust 🦀` programming language is used to write smart contracts on the Solana ecosystem.
+➡️ Generally, `Rust 🦀 ` programming language is used to write smart contracts on the Solana ecosystem.
 You can use one of the below tools to write a program,
 
 - Native Rust
