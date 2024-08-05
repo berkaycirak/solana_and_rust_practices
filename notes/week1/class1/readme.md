@@ -16,7 +16,7 @@ We have covered basics of the solana environment in that class and at the end of
 
 All data is stored in `accounts` on Solana. You can think of it like a **key-value** pair on the database and each entry is called as **account**
 
-![accounts](/notes/week1/images/accounts.svg)
+![accounts](/notes/week1/class1/images/accounts.svg)
 
 _Key-value pair demonstration from [Solana](https://solana.com/docs/core/accounts)_
 
@@ -50,7 +50,7 @@ owner: PublicKey,
 
 Each account is identifiable by its unique address, represented as 32 bytes in the format of an [**Ed25519**](https://cryptography.io/en/latest/hazmat/primitives/asymmetric/ed25519/) `PublicKey`. You can think of the address as the unique identifier for the account.
 
-![accounts](/notes/week1/images/account-address.svg)
+![accounts](/notes/week1/class1/images/account-address.svg)
 
 _Account address demonstration from [Solana](https://solana.com/docs/core/accounts) Docs_
 
@@ -98,7 +98,7 @@ They are addresses that're deterministically derived and look like standard publ
 👉 A PDA can then be used as the address for an on-chain account, providing a method to easily store, map and fetch program state.
 ==PDA enables us to easily find the address of an account at a later time.==
 
-![Off Curve PDA](/notes/week1/images/address-off-curve.svg)
+![Off Curve PDA](/notes/week1/class1/images/address-off-curve.svg)
 
 _Off Curve PDA demonstration from [Solana](https://solana.com/docs/core/pda) Docs_
 
