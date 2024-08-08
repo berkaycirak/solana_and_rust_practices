@@ -5,7 +5,7 @@
 That week we covered three classes and each class have its own topics below
 
 - [Class 1](#class-1)
-  - [Vault & Anchor basics](#vault)
+  - [Vault & Anchor Basics](#vault)
 - [Class 2](#class-2)
 - [Class 3](#class-3)
 
@@ -13,7 +13,8 @@ That week we covered three classes and each class have its own topics below
 
 ---
 
-[Vault Basics](#vault)
+### [Vault Basics](#vault)
+
 The main purpose of using vault account is to **deposit and withdraw fundings**.
 
 > [!NOTE]
