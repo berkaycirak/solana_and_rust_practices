@@ -5,7 +5,7 @@ use crate::Escrow;
 
 
 
-#[derive(Accounts)]
+#[derive(Accounts)] 
 #[instruction(seed:u64)]
 pub struct Make<'info> {
     #[account(mut)]
@@ -17,7 +17,7 @@ pub struct Make<'info> {
     #[account(
         mint::token_program=token_program
     )]
-    mint_b:InterfaceAccount<'info,Mint>,
+    mint_b:Box<InterfaceAccount<'info,Mint>>,
 
     #[account(
         mut,
@@ -25,7 +25,7 @@ pub struct Make<'info> {
         associated_token::authority = maker,
         associated_token::token_program = token_program,
     )]
-    maker_ata_a:InterfaceAccount<'info,TokenAccount>,
+    maker_ata_a:Box<InterfaceAccount<'info,TokenAccount>>,
     #[account(
         init,
         payer=maker,
@@ -38,17 +38,18 @@ pub struct Make<'info> {
         init_if_needed,
         payer=maker,
         associated_token::mint = mint_a,
-        associated_token::authority = maker,
+        associated_token::authority = escrow, // our escrow will have an authority for that vault
         associated_token::token_program = token_program,
     )]
     vault:InterfaceAccount<'info,TokenAccount>,
-    associated_token_program:Program<'info,AssociatedToken>,
-    token_program: Interface<'info,TokenInterface>,
-    system_program:Program<'info,System>
+    associated_token_program:Program<'info,AssociatedToken>, // Calculates ATAs on the accounts
+    token_program: Interface<'info,TokenInterface>, // Doing token transfer, open mints or etc.
+    system_program:Program<'info,System> // For opening escrow account state
 }
 
 impl<'info> Make <'info> {
-    pub fn save_escrow(&mut self,seed:u64,receive:u64,bump:u8)->Result<()>{
+    // initialization
+    pub fn initialize(&mut self,seed:u64,receive:u64,bump:u8)->Result<()>{
         self.escrow.set_inner(Escrow{
             seed,
             maker:self.maker.key(),
@@ -61,6 +62,7 @@ impl<'info> Make <'info> {
     }
 
     pub fn deposit_to_vault(&mut self,amount:u64)->Result<()>{
+        // We need to check some accounts for transfer
         let accounts = TransferChecked{
             from:self.maker_ata_a.to_account_info(),
             mint:self.mint_a.to_account_info(),

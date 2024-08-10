@@ -1,5 +1,5 @@
 use anchor_lang::prelude::*;
-use anchor_spl::{associated_token::AssociatedToken, token::CloseAccount, token_interface::{transfer_checked, Mint, TokenAccount, TokenInterface, TransferChecked}};
+use anchor_spl::{associated_token::AssociatedToken, token_interface::{transfer_checked, Mint, TokenAccount, TokenInterface, TransferChecked,CloseAccount,close_account}};
 
 use crate::Escrow;
 
@@ -19,18 +19,21 @@ pub struct Refund<'info> {
     )]
     mint_b:InterfaceAccount<'info,Mint>,
 
+    // If user deposit 100% its token to the vault, that token account might be closed. Therefore, init_if_needed is helpful for here.
     #[account(
-        mut,
+        init_if_needed,
+        payer=maker,
         associated_token::mint = mint_a,
         associated_token::authority = maker,
         associated_token::token_program = token_program,
     )]
     maker_ata_a:InterfaceAccount<'info,TokenAccount>,
+    // Since we initialize in the make mod that escrow, we don't need to init here. Instead, we should close it after refund. And maker will get the rend for the closed account.
     #[account(
         mut,
         close=maker,
         seeds= [b"escrow",maker.key().as_ref(),seed.to_le_bytes().as_ref()],
-        bump
+        bump = escrow.bump
     )]
     escrow:Account<'info,Escrow>,
     #[account(
@@ -46,10 +49,12 @@ pub struct Refund<'info> {
 }
 
 impl<'info> Refund <'info> {
-    pub fn withdraw_and_close(&mut self,seed:u64,receive:u64,bump:u8)->Result<()>{
-        let seed:self.escrow.seed.to_le_bytes();
-        let bump:[self.escrow.bump];
-        let signer_seeds: [&[&[&[u8];3];1];1] = &[&[b"escrow",self.maker.to_account_info().key().as_ref(),&seed.as_ref(),bump]]
+    // We will withdraw all tokens and then close the vault in which our escrow program owns it.
+    pub fn withdraw_and_close(&mut self)->Result<()>{
+        let seed=self.escrow.seed.to_le_bytes();
+        let bump=[self.escrow.bump];
+        let signer_seeds= [&[b"escrow",self.maker.to_account_info().key.as_ref(),&seed.as_ref(),&bump][..]];
+
         let accounts = TransferChecked{
             from:self.vault.to_account_info(),
             mint:self.mint_a.to_account_info(),
@@ -59,25 +64,21 @@ impl<'info> Refund <'info> {
 
         let ctx = CpiContext::new_with_signer(self.token_program.to_account_info(), accounts,&signer_seeds);
 
-        transfer_checked(ctx, self.amount.vault, self.mint_a.decimals);
+        transfer_checked(ctx, self.vault.amount, self.mint_a.decimals)?;
 
+        // After transferring all amount in vault, we should close the account since we don't need it anymore. We can reuse same variable name, since rust allows shadowing.
         let accounts = CloseAccount{
             account:self.vault.to_account_info(),
+            authority:self.escrow.to_account_info(),
+            destination:self.maker.to_account_info(),
             
-        }
+        };
+        let ctx = CpiContext::new_with_signer(self.token_program.to_account_info(), accounts,&signer_seeds);
+
+        close_account(ctx)?;
+
         Ok(())
     }
 
-    pub fn deposit_to_vault(&mut self,amount:u64)->Result<()>{
-        let accounts = TransferChecked{
-            from:self.maker_ata_a.to_account_info(),
-            mint:self.mint_a.to_account_info(),
-            to:self.vault.to_account_info(),
-            authority:self.maker.to_account_info()
-        };
-
-        let ctx = CpiContext::new(self.token_program.to_account_info(), accounts);
-
-        transfer_checked(ctx, amount, self.mint_a.decimals)
-    }
+    
 }
