@@ -30,5 +30,4 @@ pub mod escrow {
     }
 }
 
-#[derive(Accounts)]
-pub struct Initialize {}
+
