@@ -7,20 +7,20 @@ import {
 	sendAndConfirmTransaction,
 	PublicKey,
 	clusterApiUrl,
-} from '@solana/web3.js';
+} from "@solana/web3.js";
 
-import wallet from './wallet.json';
+import wallet from "./wallet.json";
 
 const from = Keypair.fromSecretKey(new Uint8Array(wallet));
 
 // My WBA public key
 const to = new PublicKey(
-	'GTfyXsd3pVNvXMbHwJARvoVidzx9LSabTxnvUnyJ1Ppx'
+	"21NC16PovX56MUPZUcpWGzsyyHpN5noRd85UeeNSaQGf"
 );
 
 const connection = new Connection(
-	clusterApiUrl('devnet'),
-	'confirmed'
+	clusterApiUrl("devnet"),
+	"confirmed"
 );
 
 const transfer = async () => {
@@ -37,7 +37,7 @@ const transfer = async () => {
 			})
 		);
 		transaction.recentBlockhash = (
-			await connection.getLatestBlockhash('confirmed')
+			await connection.getLatestBlockhash("confirmed")
 		).blockhash;
 
 		transaction.feePayer = from.publicKey;
@@ -46,7 +46,7 @@ const transfer = async () => {
 			(
 				await connection.getFeeForMessage(
 					transaction.compileMessage(),
-					'confirmed'
+					"confirmed"
 				)
 			).value || 0;
 		// Remove our previous transaction instruction

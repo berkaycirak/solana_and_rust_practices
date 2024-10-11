@@ -3,31 +3,31 @@ import {
 	Connection,
 	Keypair,
 	PublicKey,
-} from '@solana/web3.js';
-import { Program, Wallet, AnchorProvider } from '@coral-xyz/anchor';
-import { IDL, WbaPrereq } from './programs/wba_prereq';
-import wallet from './wallet.json';
+} from "@solana/web3.js";
+import { Program, Wallet, AnchorProvider } from "@coral-xyz/anchor";
+import { IDL, Turbine3Prereq } from "./programs/turbin3_prereq";
+import wallet from "./wallet.json";
 
 const keypair = Keypair.fromSecretKey(new Uint8Array(wallet));
 const connection = new Connection(
-	clusterApiUrl('devnet'),
-	'confirmed'
+	clusterApiUrl("devnet"),
+	"confirmed"
 );
 
 // Github account name
-const github = Buffer.from('berkaycirak', 'utf8');
+const github = Buffer.from("berkaycirak", "utf8");
 
 // Create our anchor provider
 const provider = new AnchorProvider(connection, new Wallet(keypair), {
-	commitment: 'confirmed',
+	commitment: "confirmed",
 });
 
 // Create our program
-const program: Program<WbaPrereq> = new Program(IDL, provider);
+const program: Program<Turbine3Prereq> = new Program(IDL, provider);
 
 // Create the PDA for our enrollment account
 const enrollment_seeds = [
-	Buffer.from('prereq'),
+	Buffer.from("prereq"),
 	keypair.publicKey.toBuffer(),
 ];
 
